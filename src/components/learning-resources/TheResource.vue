@@ -9,7 +9,9 @@
       >Add Resource</base-button
     >
   </base-card>
-  <component :is="resourcesTab"></component>
+  <keep-alive>
+    <component :is="selectedTab"></component>
+  </keep-alive>
 </template>
 <script>
 import StoredResources from './StoredResources.vue';
@@ -18,7 +20,7 @@ export default {
   components: { StoredResources, AddResource },
   data() {
     return {
-      resourcesTab: 'stored-resources',
+      selectedTab: 'stored-resources',
       storedResources: [
         {
           id: 'official-guide',
@@ -35,23 +37,36 @@ export default {
       ],
     };
   },
+
   computed: {
     setResButtoon() {
-      return this.resourcesTab === 'stored-resources' ? null : 'flat';
+      return this.selectedTab === 'stored-resources' ? null : 'flat';
     },
     setAdResButtoon() {
-      return this.resourcesTab === 'add-resource' ? null : 'flat';
+      return this.selectedTab === 'add-resource' ? null : 'flat';
+    },
+  },
+
+  methods: {
+    setResourceTab(tab) {
+      this.selectedTab = tab;
+    },
+    addResource(title, description, url) {
+      const newResource = {
+        id: new Date().toISOString(),
+        title: title,
+        description: description,
+        link: url,
+      };
+      this.storedResources.unshift(newResource);
+      this.selectedTab = 'stored-resources';
     },
   },
   provide() {
     return {
       resources: this.storedResources,
+      addResource: this.addResource,
     };
-  },
-  methods: {
-    setResourceTab(tab) {
-      this.resourcesTab = tab;
-    },
   },
 };
 </script>
